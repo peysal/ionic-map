@@ -50,8 +50,26 @@ angular.module('map', ['ionic'])
         });
 
         navigator.geolocation.getCurrentPosition(function (pos) {
-            $scope.map.setCenter(new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude));
+            var currentLatlng = new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude)
+            $scope.map.setCenter(currentLatlng);
+            var currentMarker = new google.maps.Marker({
+                position: currentLatlng,
+                map: $scope.map,
+                title: 'show me'
+            });
             $scope.loading.hide();
+
+            //Marker + infowindow + angularjs compiled ng-click
+            var contentString = "<div><a ng-click='clickTest()'>**So cost cutting ya here**</a></div>";
+            var compiled = $compile(contentString)($scope);
+
+            var infowindow = new google.maps.InfoWindow({
+                content: compiled[0]
+            });
+            google.maps.event.addListener(currentMarker, 'click', function () {
+                infowindow.open($scope.map, currentMarker);
+            });
+
         }, function (error) {
             alert('Unable to get location: ' + error.message);
         });
